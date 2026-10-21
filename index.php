@@ -10,7 +10,7 @@ $stmt = $pdo->query('SELECT id, title FROM books');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Bookstore</title>
 </head>
 <body>
     <h1>books</h1>
@@ -24,7 +24,6 @@ $stmt = $pdo->query('SELECT id, title FROM books');
             </li>
         <?php endwhile; ?>
     </ul>
-
 
 </body>
 </html>
