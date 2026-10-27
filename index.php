@@ -2,7 +2,7 @@
 
 require "connection.php";
 
-$stmt = $pdo->query('SELECT id, title FROM books');
+$stmt = $pdo->query('SELECT id, title, is_deleted FROM books WHERE is_deleted = 0');
 ?>
 
 <!DOCTYPE html>
