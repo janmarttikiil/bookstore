@@ -52,6 +52,8 @@ $authors = $stmt->fetchAll();
       </form>
       <br>
       <h1>Authors</h1>
+      
+      
 
       <ul>
         <?php foreach ($authors as $author) { ?>

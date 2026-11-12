@@ -2,7 +2,21 @@
 
 require "connection.php";
 
-$stmt = $pdo->query('SELECT id, title, is_deleted FROM books WHERE is_deleted = 0');
+$search = $_GET["search"] ?? "";
+
+if ($search === "") {
+    $stmt = $pdo->query(
+        "SELECT id, title FROM books WHERE is_deleted = 0"
+    );
+} else {
+    $stmt = $pdo->prepare(
+        "SELECT id, title FROM books
+         WHERE is_deleted = 0 AND title LIKE :search"
+    );
+
+    $stmt->execute(["search" => "%" . $search . "%"]);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +27,22 @@ $stmt = $pdo->query('SELECT id, title, is_deleted FROM books WHERE is_deleted = 
     <title>Bookstore</title>
 </head>
 <body>
+
+    <form method="get" action="index.php">
+        <label for="search">Search book by name:</label>
+
+        <input
+            type="search"
+            id="search"
+            name="search"
+            value="<?= $search ?>"
+        >
+
+        <button type="submit">Search</button>
+    </form>
+
+    <button onclick="window.location.href='author.php'">Create Author</button>
+
     <h1>books</h1>
 
     <ul>
