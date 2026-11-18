@@ -9,7 +9,7 @@ $stmt->execute(['id' => $id]);
 $book = $stmt->fetch();
 
 $stmt = $pdo->prepare('
-    SELECT book_authors.id AS book_author_id, authors.first_name, authors.last_name
+    SELECT book_authors.id AS book_author_id, authors.id, authors.first_name, authors.last_name
     FROM authors
     JOIN book_authors ON authors.id = book_authors.author_id
     WHERE book_authors.book_id = :id
@@ -17,6 +17,20 @@ $stmt = $pdo->prepare('
 
 $stmt->execute(['id' => $id]);
 $authors = $stmt->fetchAll();
+
+$stmt = $pdo->prepare('
+    SELECT authors.id, authors.first_name, authors.last_name
+    FROM authors
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM book_authors
+        WHERE book_authors.book_id = :id
+          AND book_authors.author_id = authors.id
+    )
+    ORDER BY authors.last_name, authors.first_name
+');
+$stmt->execute(['id' => $id]);
+$availableAuthors = $stmt->fetchAll();
 ?>
 
 
@@ -53,18 +67,29 @@ $authors = $stmt->fetchAll();
       <br>
       <h1>Authors</h1>
       
-      
+      <form method="post" action="add_author_to_book.php">
+        <input type="hidden" name="book_id" value="<?= $book['id'] ?>">
+        <label for="author_id">Add author:</label>
+          <select name="author_id" id="author_id">
+            <?php foreach ($availableAuthors as $author) { ?>
+            <option value="<?= $author['id'] ?>"><?= $author['first_name'] ?> <?= $author['last_name'] ?></option>
+            <?php } ?>
+          </select>
+        <input type="submit" value="Add">
+      </form>
+      <br>
+      <h2>Current Authors:</h2>
 
       <ul>
         <?php foreach ($authors as $author) { ?>
-          <form method="post" action="remove_author.php">
-            <input type="hidden" name="id" value="<?= $book['id'] ?>">
-            <li>
+          <li>
+            <form method="post" action="remove_author.php">
+              <input type="hidden" name="id" value="<?= $book['id'] ?>">
               <input type="hidden" name="book_author_id" value="<?= (int) $author['book_author_id'] ?>">
-              <?= $author['first_name'] ?> <?= $author['last_name'] ?> 
+              <?= $author['first_name'] ?> <?= $author['last_name'] ?>
               <button type="submit">X</button>
-            </li>
-          </form>
+            </form>
+          </li>
         <?php } ?>
       </ul>
 
